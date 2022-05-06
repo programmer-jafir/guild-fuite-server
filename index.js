@@ -32,6 +32,13 @@ async function run() {
       const item = await itemCollection.findOne(qurey);
       res.send(item);
     })
+
+    // Post
+    app.post('/item', async(req, res)=>{
+      const newItem = req.body;
+      const result = await itemCollection.insertOne(newItem);
+      res.send(result);
+    })
   }
   finally {
 
