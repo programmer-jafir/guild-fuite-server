@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const { query } = require('express');
 const app = express();
 const port = process.env.Port || 5000;
 
@@ -20,6 +19,7 @@ async function run() {
   try {
     await client.connect();
     const itemCollection = client.db('warehouse-management-website-').collection('item');
+    const myitemCollection = client.db('warehouse-management-website-').collection('myitem')
 
     app.get('/item', async (req, res) => {
       const qurey = {};
@@ -40,6 +40,39 @@ async function run() {
       const result = await itemCollection.insertOne(newItem);
       res.send(result);
     });
+
+    // UpdateQuantity item
+
+    app.put('/item/:id', async(req, res)=>{
+      const id = req.params.id;
+      const updateQuantity = req.body;
+      const filter = {_id: ObjectId(id)};
+      const options = { upsert: true};
+      const updateDocs = {
+        $set: {
+          quantity: updateQuantity.quantity
+        }
+      };
+
+      const result = await itemCollection.updateOne(filter, updateDocs, options);
+      res.send(result);
+    })
+
+    // Order Collection API
+
+    app.get('/myitem', async(req, res) =>{
+      const email = req.query.email;
+      const query = {email: email};
+      const cursor = myitemCollection.find(query);
+      const items = await cursor.toArray();
+      res.send(items);
+    })
+    
+    app.post('/myitem', async(req, res) =>{
+      const myitem = req.body;
+      const result = await myitemCollection.insertOne(myitem);
+      res.send(result);
+    })
 
     // Delete
     app.delete('/item/:id', async(req, res) =>{
