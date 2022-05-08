@@ -21,6 +21,7 @@ async function run() {
     const itemCollection = client.db('warehouse-management-website-').collection('item');
     const myitemCollection = client.db('warehouse-management-website-').collection('myitem')
 
+    // get items
     app.get('/item', async (req, res) => {
       const qurey = {};
       const cursor = itemCollection.find(qurey);
@@ -80,6 +81,13 @@ async function run() {
       const query = {_id: ObjectId(id)};
       const result = await itemCollection.deleteOne(query);
       res.send(result);
+
+      app.delete('/myitem/:id', async(req, res)=>{
+        const id = req.params.id;
+        const query = {_id: ObjectId(id)};
+        const result = await myitemCollection.deleteOne(query);
+        res.send(result);
+      })
     });
   }
   finally {
